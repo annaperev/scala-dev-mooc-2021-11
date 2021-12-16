@@ -1,37 +1,50 @@
 package module1
 import scala.util.control.Breaks._
+import module1.list.List
 
 object App {
 
   def main(args: Array[String]): Unit = {
 
-    def doomyFunc(a: String) = {
-      Thread.sleep(1000)
-      println(a)
-    }
+    val l = List(1, 2, 3)
+    l.mkString(';')
+    l.cons(0).mkString(';')
 
-    val doomyFuncWithLoggingTime: String => Unit = hof.logRunningTime(doomyFunc)
+    // // missing parameter type
+    // l.map(el => el.toString).mkString(';')
 
-    val v: PartialFunction[(Int, Int), Int] = {
-      case (x, y) if y != 0 => x / y
-    }
+    l.reverse.mkString(';')
 
-    val v2: PartialFunction[(Int, Int), Int] =
-      new PartialFunction[(Int, Int), Int] {
-        def isDefinedAt(v: (Int, Int)): Boolean = ???
-        def apply(v: (Int, Int)): Int = ???
-      }
+    l.filter(el => el < 2 ).mkString(';')
 
-    println(v.isDefinedAt(10, 1))
-    println(v.isDefinedAt(10, 0))
 
-    trait Printer {
-      def print(str: String): Unit
-    }
+    // def doomyFunc(a: String) = {
+    //   Thread.sleep(1000)
+    //   println(a)
+    // }
 
-    val printer: Printer = str => println(str)
+    // val doomyFuncWithLoggingTime: String => Unit = hof.logRunningTime(doomyFunc)
 
-    printer.print("Hello")
+    // val v: PartialFunction[(Int, Int), Int] = {
+    //   case (x, y) if y != 0 => x / y
+    // }
+
+    // val v2: PartialFunction[(Int, Int), Int] =
+    //   new PartialFunction[(Int, Int), Int] {
+    //     def isDefinedAt(v: (Int, Int)): Boolean = ???
+    //     def apply(v: (Int, Int)): Int = ???
+    //   }
+
+    // println(v.isDefinedAt(10, 1))
+    // println(v.isDefinedAt(10, 0))
+
+    // trait Printer {
+    //   def print(str: String): Unit
+    // }
+
+    // val printer: Printer = str => println(str)
+
+    // printer.print("Hello")
 
   }
 

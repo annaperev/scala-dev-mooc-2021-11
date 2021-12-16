@@ -217,10 +217,18 @@ object hof{
            case Option.None => Option.None
        }
 
-       def printIfAny: Unit = this match {
+        def printIfAny: Unit = this match {
           case Option.Some(v) => println(v)
-          case Option.None =>
+          case Option.None => throw new Exception("PrintIfAny on empty option")
         }
+
+        def filter(p: T => Boolean): Option[T] = this match {
+          case Option.None   => throw new Exception("filter on empty option")
+          case Option.Some(v) => if (p(v)) this else Option.None
+        }
+
+        def zip[F,S](o1: Option[F], o2: Option[S]): Option[(F,S)] = 
+          if (!o1.isEmpty && !o2.isEmpty) Option.Some(o1.get,o2.get) else Option.None
    }
 
    object Option{
@@ -268,6 +276,46 @@ object hof{
     sealed trait List[+T]{
 
       def ::[A >: T](elem: A): List[A] = new :: (elem, this)
+
+      def cons[A >: T](element: A): List[A] = this match {
+          case ::(h, t) => new ::(element, this)
+          case Nil => new ::(element, Nil)
+        }
+
+        def mkString(delimiter: Char): Unit = this match {
+          case ::(head, tail) => {
+            print(head.toString.+(delimiter)) 
+            tail.mkString(delimiter)
+          }
+          case Nil => println()
+        }
+
+        // не работает
+        def reverse[A >: T]: List[A] = this match {
+          case ::(head, tail) =>  new :: (head,tail.reverse)
+          case Nil => Nil
+        }
+
+        // не работает
+        //[error] not found: type B
+        // def map[A >: T](f: T => B): List[T] = this match {
+        //   case ::(head, tail) => new :: (f(head), tail.map(f))
+        //   case Nil => Nil
+        // }
+
+        def filter[A >: T](p: T => Boolean): List[T] = this match{
+          case ::(head, tail) => {
+              if (p(head)) new :: (head, tail.filter(p))
+              else tail.filter(p)
+          }
+          case Nil => Nil
+        }
+
+        // зависит от map => не работает
+        // def incList[Int]: List[Int] = this.map(el = > el + 1)
+
+        // зависит от map => не работает
+        // def shoutString[String]: List[String] = this.map(el => el + "!")
     }
 
     case class ::[A](head: A, tail: List[A]) extends List[A]
