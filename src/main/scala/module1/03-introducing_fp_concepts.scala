@@ -224,10 +224,11 @@ object hof{
 
         def filter(p: T => Boolean): Option[T] = this match {
           case Option.None   => throw new Exception("filter on empty option")
-          case Option.Some(v) => if (p(v)) this else Option.None
+          case Option.Some(v) if (p(v)) => this 
+          case _ => Option.None
         }
 
-        def zip[F,S](o1: Option[F], o2: Option[S]): Option[(F,S)] = 
+        def zip[F,S](o1: Option[F], o2: Option[S]): Option[(F,S)] =
           if (!o1.isEmpty && !o2.isEmpty) Option.Some(o1.get,o2.get) else Option.None
    }
 
@@ -235,8 +236,7 @@ object hof{
         case class Some[T](v: T) extends Option[T]
         case object None extends Option[Nothing]
 
-        def apply[T](v: T): Option[T] = ???
-
+        def apply[T](v: T): Option[T] = if(v == Nil) Option.None else Option.Some(v)
 
    }
 
@@ -275,56 +275,48 @@ object hof{
 
     sealed trait List[+T]{
 
-      def ::[A >: T](elem: A): List[A] = new :: (elem, this)
+        def cons[A >: T](element: A): List[A] =  List.::(element, this)
 
-      def cons[A >: T](element: A): List[A] = this match {
-          case ::(h, t) => new ::(element, this)
-          case Nil => new ::(element, Nil)
+        def mkString(delimiter: String): String = this match {
+          case List.::(head, tail) => head + delimiter + " " + tail.mkString(delimiter)
+          case List.Nil => ""
         }
 
-        def mkString(delimiter: Char): Unit = this match {
-          case ::(head, tail) => {
-            print(head.toString.+(delimiter)) 
-            tail.mkString(delimiter)
+        def reverse: List[T] = {
+          def reverseRec[A](result: List[T], list: List[T]): List[T] = {
+            list match {
+              case List.Nil => result
+              case List.::(h, t) => reverseRec(List.::(h, result), t)
+            }
           }
-          case Nil => println()
+          reverseRec(List.Nil, this)
         }
 
-        // не работает
-        def reverse[A >: T]: List[A] = this match {
-          case ::(head, tail) =>  new :: (head,tail.reverse)
-          case Nil => Nil
+         def map[B](f: T => B): List[B] = this match {
+          case List.::(head, tail) =>List.:: (f(head), tail.map(f))
+          case List.Nil => List.Nil
         }
 
-        // не работает
-        //[error] not found: type B
-        // def map[A >: T](f: T => B): List[T] = this match {
-        //   case ::(head, tail) => new :: (f(head), tail.map(f))
-        //   case Nil => Nil
-        // }
-
-        def filter[A >: T](p: T => Boolean): List[T] = this match{
-          case ::(head, tail) => {
-              if (p(head)) new :: (head, tail.filter(p))
-              else tail.filter(p)
-          }
-          case Nil => Nil
-        }
-
-        // зависит от map => не работает
-        // def incList[Int]: List[Int] = this.map(el = > el + 1)
-
-        // зависит от map => не работает
-        // def shoutString[String]: List[String] = this.map(el => el + "!")
+         def filter(p: T => Boolean): List[T] =
+           this match{
+           case List.::(head, tail) =>
+             if (p(head)) List.:: (head, tail.filter(p))
+             else tail.filter(p)
+           case List.Nil => List.Nil
+         }
     }
 
-    case class ::[A](head: A, tail: List[A]) extends List[A]
-    case object Nil extends List[Nothing]
+      
 
     object List {
+      case class ::[+A](head: A, tail: List[A]) extends List[A]
+      case object Nil extends List[Nothing]
       def apply[T](v: T*): List[T] = if (v.isEmpty) Nil else new ::(v.head, apply(v.tail: _*))
     }
-    
+
+   def incList(list: List[Int]): List[Int] = list.map(_ + 1)
+
+   def shoutString(list: List[String]): List[String] = list.map(_ + "!")
 
 
     /**
