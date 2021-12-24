@@ -12,7 +12,7 @@ object App {
     val option2 = Option(2)
     println(option1.isEmpty)
     println(option1.get)
-    println(option1.zip(option1,option2))
+    println(option1.zip(option2))
 
     println("-----list-------")
     val l = List(1, 2, 3)

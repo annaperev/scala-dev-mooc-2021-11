@@ -228,8 +228,10 @@ object hof{
           case _ => Option.None
         }
 
-        def zip[F,S](o1: Option[F], o2: Option[S]): Option[(F,S)] =
-          if (!o1.isEmpty && !o2.isEmpty) Option.Some(o1.get,o2.get) else Option.None
+        def zip[B](that: Option[B]): Option[(T, B)] = {
+          that.flatMap(el => (this.map(el1=> (el1, el))))
+        }
+
    }
 
    object Option{
