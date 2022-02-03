@@ -15,9 +15,30 @@ object task_collections {
    * HINT: Тут удобно использовать collect и zipWithIndex
    *
    * **/
-  def capitalizeIgnoringASCII(text: List[String]): List[String] = {
-    List.empty
+
+  val ifASCIIToUpper: PartialFunction[String, String] = new PartialFunction[String, String] {
+    override def apply(v1: String): String = v1.toUpperCase()
+    override def isDefinedAt(x: String): Boolean = isASCIIString(x)
   }
+
+  val ifNotASCIIToLower: PartialFunction[String, String] = new PartialFunction[String, String] {
+    override def apply(v1: String): String = v1.toLowerCase()
+    override def isDefinedAt(x: String): Boolean = !isASCIIString(x)
+  }
+
+  val f: PartialFunction[String, String] = {
+    ifASCIIToUpper orElse  ifNotASCIIToLower
+  }
+
+  // не нашла, куда тут применить zipWithIndex
+  def capitalizeIgnoringASCII(text: List[String]): List[String] = {
+    val result: List[String] = List(text(0))
+    result ++ text.slice(1, text.length).collect(f)
+  }
+
+
+
+
 
   /**
    *
@@ -29,7 +50,10 @@ object task_collections {
    * HINT: Для всех возможных комбинаций чисел стоит использовать Map
    * **/
   def numbersToNumericString(text: String): String = {
-    ""
+    val map = Map("1"->"one","2"->"two","3"->"three","4"->"four","5"->"five","6"->"six","7"->"seven","8"->"eight","9"->"nine", "10" -> "ten")
+    var result = text
+    for ((key, value) <- map) result = result.replaceAll(key, value)
+      result
   }
 
   /**
@@ -47,7 +71,7 @@ object task_collections {
    * Реализуйте метод который примет две коллекции (два источника) и вернёт объединенный список уникальный значений
    **/
   def intersectionAuto(dealerOne: Iterable[Auto], dealerTwo: Iterable[Auto]): Iterable[Auto] = {
-    Iterable.empty
+    (dealerOne ++ dealerTwo).toSet
   }
 
   /**
@@ -56,6 +80,6 @@ object task_collections {
    * и вернёт уникальный список машин обслуживающихся в первом дилерском центре и не обслуживающимся во втором
    **/
   def filterAllLeftDealerAutoWithoutRight(dealerOne: Iterable[Auto], dealerTwo: Iterable[Auto]): Iterable[Auto] = {
-    Iterable.empty
+    dealerOne.toSet.diff(dealerTwo.toSet)
   }
 }
